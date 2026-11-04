@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Upload Weather Data{% endblock %}
+{% block content %}
+<section class="hero">
+  <p class="eyebrow">BEGINNER DATA ANALYTICS PROJECT</p>
+  <h1>Explore weather observations</h1>
+  <p>Upload recorded weather data to inspect data quality, summarize monthly patterns, and visualize temperature and rainfall. This application does not forecast weather.</p>
+</section>
+
+<section class="panel">
+  <h2>Upload a CSV file</h2>
+  <p>Required fields: <code>observation_date</code>, <code>location</code>, <code>temperature</code>, <code>humidity</code>, <code>rainfall</code>.</p>
+  <p class="muted">Units: °C, %, mm. Maximum upload size is configured in your .env file.</p>
+  <form action="{{ url_for('main.upload') }}" method="post" enctype="multipart/form-data">
+    <label for="file">Weather CSV</label>
+    <input id="file" name="file" type="file" accept=".csv,text/csv" required>
+    <button type="submit">Validate and import</button>
+  </form>
+  <a class="secondary-link" href="{{ url_for('main.sample_csv') }}">Download sample CSV</a>
+</section>
+
+<section class="two-column">
+  <article class="panel">
+    <h2>What is analyzed?</h2>
+    <ul>
+      <li>Daily and monthly minimum, maximum, and average temperature</li>
+      <li>Average humidity and total recorded rainfall</li>
+      <li>Missing values, invalid values, and duplicate rows</li>
+    </ul>
+  </article>
+  <article class="panel">
+    <h2>Before you start</h2>
+    <ol>
+      <li>Start MySQL Server.</li>
+      <li>Run <code>sql/schema.sql</code>.</li>
+      <li>Configure the <code>.env</code> file.</li>
+      <li>Upload a CSV or open the dashboard.</li>
+    </ol>
+  </article>
+</section>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Weather Dashboard{% endblock %}
+{% block content %}
+<section class="page-heading">
+  <p class="eyebrow">OBSERVATION SUMMARY</p>
+  <h1>Weather dashboard</h1>
+  <p>Summaries describe stored observations only. Interpret monthly rainfall cautiously if records are missing.</p>
+</section>
+
+{% if message %}<div class="flash success">{{ message }}</div>{% endif %}
+
+<section class="panel filter-panel">
+  <form method="get" action="{{ url_for('main.dashboard') }}" class="filter-form">
+    <label for="location">Location</label>
+    <select id="location" name="location">
+      <option value="">All locations</option>
+      {% for item in locations %}
+        <option value="{{ item }}" {% if selected_location == item %}selected{% endif %}>{{ item }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit">Apply filter</button>
+    <a class="button-link secondary" href="{{ url_for('main.export_monthly', location=selected_location if selected_location != 'All' else '') }}">Export monthly CSV</a>
+  </form>
+</section>
+
+<section class="panel">
+  <h2>Data-quality report</h2>
+  <div class="metrics">
+    {% for key, label in [
+      ('input_rows','Input rows'),('accepted_rows','Accepted rows'),
+      ('rejected_rows','Rejected rows'),('duplicate_rows','Duplicates'),
+      ('invalid_dates','Invalid dates'),('missing_locations','Missing locations'),
+      ('missing_temperatures','Missing temperature'),('invalid_temperatures','Invalid temperature'),
+      ('missing_humidity','Missing humidity'),('invalid_humidity','Invalid humidity'),
+      ('missing_rainfall','Missing rainfall'),('invalid_rainfall','Invalid rainfall')
+    ] %}
+      <div class="metric"><span>{{ label }}</span><strong>{{ report[key] }}</strong></div>
+    {% endfor %}
+  </div>
+  <p class="muted">A dash means no upload-specific report is available for the current dashboard view.</p>
+</section>
+
+<section class="two-column charts">
+  <article class="panel">
+    <h2>Temperature trend</h2>
+    {% if temperature_chart %}
+      <img class="chart" src="data:image/png;base64,{{ temperature_chart }}" alt="Monthly average temperature line chart">
+    {% else %}<p class="muted">No valid temperature observations to chart.</p>{% endif %}
+  </article>
+  <article class="panel">
+    <h2>Rainfall comparison</h2>
+    {% if rainfall_chart %}
+      <img class="chart" src="data:image/png;base64,{{ rainfall_chart }}" alt="Monthly total rainfall bar chart">
+    {% else %}<p class="muted">No valid rainfall observations to chart.</p>{% endif %}
+  </article>
+</section>
+
+<section class="panel">
+  <h2>Monthly summary</h2>
+  {% if monthly %}
+  <div class="table-wrap"><table>
+    <thead><tr>{% for key in monthly[0].keys() %}<th>{{ key.replace('_',' ').title() }}</th>{% endfor %}</tr></thead>
+    <tbody>{% for row in monthly %}<tr>{% for value in row.values() %}<td>{{ value }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+  </table></div>
+  {% else %}<p class="muted">No stored records yet. Upload a CSV to begin.</p>{% endif %}
+</section>
+
+<section class="panel">
+  <h2>Daily summary</h2>
+  {% if daily %}
+  <div class="table-wrap"><table>
+    <thead><tr>{% for key in daily[0].keys() %}<th>{{ key.replace('_',' ').title() }}</th>{% endfor %}</tr></thead>
+    <tbody>{% for row in daily %}<tr>{% for value in row.values() %}<td>{{ value }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+  </table></div>
+  {% else %}<p class="muted">No daily summaries available.</p>{% endif %}
+</section>
+
+<section class="panel">
+  <h2>Stored records (first 100)</h2>
+  {% if records %}
+  <div class="table-wrap"><table>
+    <thead><tr>{% for key in records[0].keys() %}<th>{{ key.replace('_',' ').title() }}</th>{% endfor %}</tr></thead>
+    <tbody>{% for row in records %}<tr>{% for value in row.values() %}<td>{{ value }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+  </table></div>
+  {% else %}<p class="muted">No records have been stored yet.</p>{% endif %}
+</section>
+{% endblock %}
